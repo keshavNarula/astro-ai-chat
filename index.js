@@ -33,8 +33,8 @@ app.post('/ask', async (req, res) => {
   }
 });
 
-// Listen on the dynamic port provided by Render
-const port = process.env.PORT || 10000; // Render will use the dynamic port
+// Bind to the dynamic port provided by Render
+const port = process.env.PORT || 10000;  // Ensure it's using the dynamic port
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
