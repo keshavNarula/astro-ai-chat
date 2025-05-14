@@ -1,6 +1,6 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const { Configuration, OpenAIApi } = require('openai');
 
 const app = express();
@@ -10,16 +10,16 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY, // Set this in Render Environment Variables
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
-// Correct POST route
+// This is your working route
 app.post('/ask', async (req, res) => {
-  const question = req.body.question;
+  const { question } = req.body;
 
   if (!question) {
-    return res.status(400).json({ error: 'No question provided' });
+    return res.status(400).json({ error: 'Question is required' });
   }
 
   try {
@@ -28,13 +28,18 @@ app.post('/ask', async (req, res) => {
       messages: [{ role: 'user', content: question }],
     });
 
-    res.json({ answer: completion.data.choices[0].message.content.trim() });
-  } catch (error) {
-    console.error('OpenAI Error:', error.message);
-    res.status(500).json({ error: 'Failed to get response from OpenAI' });
+    const answer = completion.data.choices[0].message.content;
+    res.json({ answer });
+  } catch (err) {
+    console.error('Error:', err.message);
+    res.status(500).json({ error: 'OpenAI request failed' });
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('Astro AI Chat is running!');
+});
+
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
