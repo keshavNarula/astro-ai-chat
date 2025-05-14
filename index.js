@@ -1,41 +1,33 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Configuration, OpenAIApi } = require('openai');
+const openai = require('openai'); // Ensure you have the OpenAI client set up properly
 
 const app = express();
-
-// Initialize OpenAI API
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
-
 app.use(bodyParser.json());
 
-// POST endpoint for the /ask route
+const PORT = process.env.PORT || 10000; // Use the Render-provided port or default to 10000
+
 app.post('/ask', async (req, res) => {
-  const { question } = req.body;
+  const question = req.body.question;
 
   if (!question) {
-    return res.status(400).send({ error: 'Question is required' });
+    return res.status(400).json({ error: 'No question provided' });
   }
 
+  // Here you integrate OpenAI API (ensure your OpenAI API key is correct)
   try {
-    const completion = await openai.createCompletion({
-      model: 'text-davinci-003',
+    const response = await openai.completions.create({
+      model: 'text-davinci-003', // Or whichever model you want
       prompt: question,
-      max_tokens: 50,
+      max_tokens: 100,
     });
-
-    res.json({ answer: completion.data.choices[0].text.trim() });
+    res.json({ answer: response.choices[0].text });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ error: 'An error occurred while fetching data from OpenAI.' });
+    res.status(500).json({ error: 'Error processing your question' });
   }
 });
 
-// Listen on the dynamic port provided by Render
-const port = process.env.PORT || 10000; // Use dynamic port provided by Render
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
