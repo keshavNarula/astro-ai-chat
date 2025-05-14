@@ -1,22 +1,17 @@
 const express = require('express');
-const cors = require('cors');
+const app = express();
 const bodyParser = require('body-parser');
 const { Configuration, OpenAIApi } = require('openai');
 
-const app = express();
-const port = process.env.PORT || 5000;
-
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-
-// OpenAI API setup
+// Initialize OpenAI
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
-// Route to handle user input
+app.use(bodyParser.json());
+
+// Define the /ask endpoint
 app.post('/ask', async (req, res) => {
   const { question } = req.body;
 
@@ -31,13 +26,15 @@ app.post('/ask', async (req, res) => {
       max_tokens: 50,
     });
 
-    res.json({ answer: completion.data.choices[0].text });
+    res.json({ answer: completion.data.choices[0].text.trim() });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: 'An error occurred while fetching data from OpenAI.' });
   }
 });
 
+// Listen on the dynamic port provided by Render
+const port = process.env.PORT || 10000; // Render will use the dynamic port
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
