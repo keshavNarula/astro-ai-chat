@@ -1,9 +1,10 @@
 const express = require('express');
-const app = express();
 const bodyParser = require('body-parser');
 const { Configuration, OpenAIApi } = require('openai');
 
-// Initialize OpenAI
+const app = express();
+
+// Initialize OpenAI API
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -11,7 +12,7 @@ const openai = new OpenAIApi(configuration);
 
 app.use(bodyParser.json());
 
-// Define the /ask endpoint
+// POST endpoint for the /ask route
 app.post('/ask', async (req, res) => {
   const { question } = req.body;
 
@@ -33,8 +34,8 @@ app.post('/ask', async (req, res) => {
   }
 });
 
-// Bind to the dynamic port provided by Render
-const port = process.env.PORT || 10000;  // Ensure it's using the dynamic port
+// Listen on the dynamic port provided by Render
+const port = process.env.PORT || 10000; // Use dynamic port provided by Render
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
